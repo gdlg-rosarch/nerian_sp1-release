@@ -17,7 +17,3 @@ Versions of tools used:
 - rosdep version: `0.11.2`
 - rosdistro version: `0.4.2`
 - vcstools version: `0.1.36`
-
-
-nerian_sp1 releases
-===================
