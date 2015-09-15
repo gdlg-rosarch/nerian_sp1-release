@@ -1,3 +1,24 @@
+## nerian_sp1 (jade) - 1.1.1-0
+
+The packages in the `nerian_sp1` repository were released into the `jade` distro by running `/usr/bin/bloom-release --rosdistro jade --track jade nerian_sp1` on `Tue, 15 Sep 2015 11:40:52 -0000`
+
+The `nerian_sp1` package was released.
+
+Version of package(s) in repository `nerian_sp1`:
+- upstream repository: https://github.com/nerian-vision/nerian_sp1.git
+- release repository: https://github.com/nerian-vision/nerian_sp1-release.git
+- rosdistro version: `1.1.0-0`
+- old version: `1.1.0-0`
+- new version: `1.1.1-0`
+
+Versions of tools used:
+- bloom version: `0.5.20`
+- catkin_pkg version: `0.2.10`
+- rosdep version: `0.11.2`
+- rosdistro version: `0.4.2`
+- vcstools version: `0.1.37`
+
+
 ## nerian_sp1 (hydro) - 1.1.0-0
 
 The packages in the `nerian_sp1` repository were released into the `hydro` distro by running `/usr/bin/bloom-release --rosdistro hydro --track hydro nerian_sp1` on `Mon, 31 Aug 2015 07:35:42 -0000`
