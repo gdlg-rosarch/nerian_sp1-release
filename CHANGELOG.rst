@@ -2,9 +2,15 @@
 Changelog for package nerian_sp1
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.1.2 (2015-10-05)
+------------------
+* Fixed bug that prevented conversion of point cloud message to PCL object
+* Contributors: Konstantin Schauwecker
+
 1.1.1 (2015-09-15)
 ------------------
 * Updated to libvisiontransfer 1.0.2
+* Installing libvisiontransfer headers
 * Contributors: Konstantin Schauwecker
 
 1.1.0 (2015-08-26)
