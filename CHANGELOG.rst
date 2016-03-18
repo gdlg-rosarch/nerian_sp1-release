@@ -2,6 +2,12 @@
 Changelog for package nerian_sp1
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.3.0 (2016-03-18)
+------------------
+* Updated sp1 software release to version 2.1.5
+* Support for changing q-matrix (caused by auto re-calibration)
+* Contributors: Konstantin Schauwecker
+
 1.2.2 (2016-02-12)
 ------------------
 * Upgraded libvisiontransfer to version 2.1.2
