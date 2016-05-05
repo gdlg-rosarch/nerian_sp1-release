@@ -1,3 +1,26 @@
+## nerian_sp1 (indigo) - 1.3.1-0
+
+The packages in the `nerian_sp1` repository were released into the `indigo` distro by running `/usr/bin/bloom-release nerian_sp1 --track indigo --rosdistro indigo` on `Thu, 05 May 2016 18:39:04 -0000`
+
+The `nerian_sp1` package was released.
+
+Version of package(s) in repository `nerian_sp1`:
+
+- upstream repository: https://github.com/nerian-vision/nerian_sp1.git
+- release repository: https://github.com/nerian-vision/nerian_sp1-release.git
+- rosdistro version: `1.3.0-0`
+- old version: `1.3.0-0`
+- new version: `1.3.1-0`
+
+Versions of tools used:
+
+- bloom version: `0.5.21`
+- catkin_pkg version: `0.2.10`
+- rosdep version: `0.11.4`
+- rosdistro version: `0.4.7`
+- vcstools version: `0.1.38`
+
+
 ## nerian_sp1 (jade) - 1.3.1-0
 
 The packages in the `nerian_sp1` repository were released into the `jade` distro by running `/usr/bin/bloom-release nerian_sp1 --track jade --rosdistro jade` on `Thu, 05 May 2016 18:31:01 -0000`
