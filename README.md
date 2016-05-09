@@ -1,3 +1,26 @@
+## nerian_sp1 (kinetic) - 1.3.2-0
+
+The packages in the `nerian_sp1` repository were released into the `kinetic` distro by running `/usr/bin/bloom-release --rosdistro kinetic --track kinetic nerian_sp1` on `Mon, 09 May 2016 09:19:00 -0000`
+
+The `nerian_sp1` package was released.
+
+Version of package(s) in repository `nerian_sp1`:
+
+- upstream repository: https://github.com/nerian-vision/nerian_sp1.git
+- release repository: unknown
+- rosdistro version: `null`
+- old version: `1.3.1-0`
+- new version: `1.3.2-0`
+
+Versions of tools used:
+
+- bloom version: `0.5.21`
+- catkin_pkg version: `0.2.10`
+- rosdep version: `0.11.4`
+- rosdistro version: `0.4.7`
+- vcstools version: `0.1.38`
+
+
 ## nerian_sp1 (kinetic) - 1.3.1-0
 
 The packages in the `nerian_sp1` repository were released into the `kinetic` distro by running `/usr/bin/bloom-release --rosdistro kinetic --track kinetic nerian_sp1` on `Mon, 09 May 2016 08:56:07 -0000`
