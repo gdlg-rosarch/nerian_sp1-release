@@ -2,6 +2,16 @@
 Changelog for package nerian_sp1
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.3.3 (2016-05-17)
+------------------
+* Updated SP1 software release to version 2.1.6
+* Contributors: Konstantin Schauwecker
+
+1.3.2 (2016-05-09)
+------------------
+* Build fix for ROS kinetic
+* Contributors: Konstantin Schauwecker
+
 1.3.1 (2016-05-05)
 ------------------
 * Added missing launch file to ROS package
