@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 Nerian Vision Technologies
+ * Copyright (c) 2016 Nerian Vision Technologies
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,7 +24,6 @@
 #include <nerian_sp1/StereoCameraInfo.h>
 #include <boost/smart_ptr.hpp>
 #include <colorcoder.h>
-#include <sdlwindow.h>
 
 using namespace std;
 
@@ -106,20 +105,13 @@ public:
             calibFile = "";
         }
 
-        if (!privateNh.getParam("disparity_window", dispWindow)) {
-            dispWindow = false;
-        }
-
-        // Create debugging window
-        if(dispWindow) {
-            window.reset(new SDLWindow(640, 480, "Disparity Map"));
-        }
-
         // Create publishers
         disparityPublisher.reset(new ros::Publisher(nh.advertise<sensor_msgs::Image>(
             "/nerian_sp1/disparity_map", 5)));
-        imagePublisher.reset(new ros::Publisher(nh.advertise<sensor_msgs::Image>(
+        leftImagePublisher.reset(new ros::Publisher(nh.advertise<sensor_msgs::Image>(
             "/nerian_sp1/left_image", 5)));
+        rightImagePublisher.reset(new ros::Publisher(nh.advertise<sensor_msgs::Image>(
+            "/nerian_sp1/right_image", 5)));
 
         if(calibFile == "" ) {
             ROS_WARN("No camera calibration file configured. Cannot publish detailed camera information!");
@@ -155,11 +147,11 @@ public:
             ros::Time stamp = ros::Time::now();
 
             // Publish the selected messages
-            if(imagePublisher->getNumSubscribers() > 0) {
+            if(leftImagePublisher->getNumSubscribers() > 0) {
                 publishImageMsg(imagePair, stamp);
             }
 
-            if(disparityPublisher->getNumSubscribers() > 0 || window != NULL) {
+            if(disparityPublisher->getNumSubscribers() > 0 || rightImagePublisher->getNumSubscribers() > 0) {
                 publishDispMapMsg(imagePair, stamp);
             }
 
@@ -195,7 +187,8 @@ private:
     ros::NodeHandle nh;
     boost::scoped_ptr<ros::Publisher> cloudPublisher;
     boost::scoped_ptr<ros::Publisher> disparityPublisher;
-    boost::scoped_ptr<ros::Publisher> imagePublisher;
+    boost::scoped_ptr<ros::Publisher> leftImagePublisher;
+    boost::scoped_ptr<ros::Publisher> rightImagePublisher;
     boost::scoped_ptr<ros::Publisher> cameraInfoPublisher;
 
     // Parameters
@@ -210,7 +203,6 @@ private:
     std::string remoteHost;
     std::string localHost;
     std::string calibFile;
-    bool dispWindow;
 
     // Other members
     int frameNum;
@@ -221,7 +213,6 @@ private:
     cv::FileStorage calibStorage;
     nerian_sp1::StereoCameraInfoPtr camInfoMsg;
     ros::Time lastCamInfoPublish;
-    boost::scoped_ptr<SDLWindow> window;
 
     /**
      * \brief Publishes a rectified left camera image
@@ -238,7 +229,7 @@ private:
 
 
         msg->encoding = "mono8";
-        imagePublisher->publish(msg);
+        leftImagePublisher->publish(msg);
     }
 
     /**
@@ -251,17 +242,18 @@ private:
         cvImg.header.stamp = stamp;
         cvImg.header.seq = imagePair.getSequenceNumber(); // Actually ROS will overwrite this
 
-        cv::Mat_<unsigned short> monoImg(imagePair.getHeight(), imagePair.getWidth(),
-            reinterpret_cast<unsigned short*>(imagePair.getPixelData(1)),
-            imagePair.getRowStride(1));
+        bool format12Bit = (imagePair.getPixelFormat(1) == ImagePair::FORMAT_12_BIT);
+        cv::Mat monoImg(imagePair.getHeight(), imagePair.getWidth(),
+            format12Bit ? CV_16UC1 : CV_8UC1,
+            imagePair.getPixelData(1), imagePair.getRowStride(1));
         string encoding = "";
 
-        if(!colorCodeDispMap) {
+        if(!colorCodeDispMap || !format12Bit) {
             cvImg.image = monoImg;
-            encoding = "mono16";
+            encoding = (format12Bit ? "mono16": "mono8");
         } else {
             if(colCoder == NULL) {
-                colCoder.reset(new ColorCoder(0, 16*111, true, true));
+                colCoder.reset(new ColorCoder(ColorCoder::COLOR_RED_BLUE_BGR, 0, 16*111, true, true));
                 if(colorCodeLegend) {
                     // Create the legend
                     colDispMap = colCoder->createLegendBorder(monoImg.cols, monoImg.rows, 1.0/16.0);
@@ -271,23 +263,20 @@ private:
             }
 
             cv::Mat_<cv::Vec3b> dispSection = colDispMap(cv::Rect(0, 0, monoImg.cols, monoImg.rows));
-            colCoder->codeImage(monoImg, dispSection);
+            
+            colCoder->codeImage(cv::Mat_<unsigned short>(monoImg), dispSection);
             cvImg.image = colDispMap;
             encoding = "bgr8";
         }
 
-        if(disparityPublisher->getNumSubscribers() > 0) {
-            sensor_msgs::ImagePtr msg = cvImg.toImageMsg();
-            msg->encoding = encoding;
+        sensor_msgs::ImagePtr msg = cvImg.toImageMsg();
+        msg->encoding = encoding;
+
+        if(disparityPublisher->getNumSubscribers() > 0 && format12Bit) {
             disparityPublisher->publish(msg);
         }
-
-        if(window != NULL) {
-            if(window->getSize() != cvImg.image.size()) {
-                window->resize(cvImg.image.size());
-            }
-            window->displayImage(cvImg.image);
-            window->processEvents(false);
+        if(rightImagePublisher->getNumSubscribers() > 0 && !format12Bit) {
+            rightImagePublisher->publish(msg);
         }
     }
 
@@ -314,6 +303,10 @@ private:
      * as point cloud.
      */
     void publishPointCloudMsg(ImagePair& imagePair, ros::Time stamp) {
+        if(imagePair.getPixelFormat(1) != ImagePair::FORMAT_12_BIT) {
+            return; // This is not a disparity map
+        }
+    
         // Transform Q-matrix if desired
         float qRos[16];
         if(rosCoordinateSystem) {
@@ -322,7 +315,13 @@ private:
         }
 
         // Get 3D points
-        float* pointMap = recon3d->createPointMap(imagePair, 0);
+        float* pointMap = nullptr;
+        try {
+            pointMap = recon3d->createPointMap(imagePair, 0);
+        } catch(std::exception& ex) {
+            cerr << "Error creating point cloud: " << ex.what() << endl;
+            return;
+        } 
 
         // Create message object and set header
         pointCloudMsg->header.stamp = stamp;
