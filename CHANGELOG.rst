@@ -2,6 +2,21 @@
 Changelog for package nerian_sp1
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.5.0 (2017-01-17)
+------------------
+* Switched to new sp1 software release 4.0.0
+* Added example code for operation mode configuration to launch script
+* Added example scripts for switching SP1 operation mode
+* Separate topic for right image and bugfix for right image output
+* Contributors: Konstantin Schauwecker
+
+1.4.0 (2016-10-07)
+------------------
+* Updated to SP1 software release 3.0.0
+* Removed automatic installation of spcom
+* Handling of point cloud exceptions
+* Contributors: Konstantin Schauwecker
+
 1.3.3 (2016-05-17)
 ------------------
 * Updated SP1 software release to version 2.1.6
