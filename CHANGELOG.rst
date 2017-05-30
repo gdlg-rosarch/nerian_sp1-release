@@ -2,6 +2,12 @@
 Changelog for package nerian_sp1
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.6.2 (2017-05-30)
+------------------
+* Allow launch even if calibration file is not found
+* Implemented upper limit for point cloud depth (max_depth parameter)
+* Contributors: Konstantin Schauwecker
+
 1.6.1 (2017-03-27)
 ------------------
 * Updated libvisiontransfer to version 4.1.2
