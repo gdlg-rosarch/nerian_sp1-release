@@ -104,8 +104,13 @@ public:
         if (!privateNh.getParam("calibration_file", calibFile)) {
             calibFile = "";
         }
+
         if (!privateNh.getParam("delay_execution", execDelay)) {
             execDelay = 0;
+        }
+
+        if (!privateNh.getParam("max_depth", maxDepth)) {
+            maxDepth = -1;
         }
 
         // Apply an initial delay if configured
@@ -119,13 +124,7 @@ public:
         rightImagePublisher.reset(new ros::Publisher(nh.advertise<sensor_msgs::Image>(
             "/nerian_sp1/right_image", 5)));
 
-        if(calibFile == "" ) {
-            ROS_WARN("No camera calibration file configured. Cannot publish detailed camera information!");
-        } else {
-             if (!calibStorage.open(calibFile, cv::FileStorage::READ)) {
-                throw std::runtime_error("Error reading calibration file: " + calibFile);
-            }
-        }
+        loadCameraCalibration();
 
         cameraInfoPublisher.reset(new ros::Publisher(nh.advertise<nerian_sp1::StereoCameraInfo>(
             "/nerian_sp1/stereo_camera_info", 1)));
@@ -214,6 +213,7 @@ private:
     std::string localHost;
     std::string calibFile;
     double execDelay;
+    double maxDepth;
 
     // Other members
     int frameNum;
@@ -224,6 +224,28 @@ private:
     cv::FileStorage calibStorage;
     nerian_sp1::StereoCameraInfoPtr camInfoMsg;
     ros::Time lastCamInfoPublish;
+
+    /**
+     * \brief Loads a camera calibration file if configured
+     */
+    void loadCameraCalibration() {
+        if(calibFile == "" ) {
+            ROS_WARN("No camera calibration file configured. Cannot publish detailed camera information!");
+        } else {
+            bool success = false;
+            try {
+                if (calibStorage.open(calibFile, cv::FileStorage::READ)) {
+                    success = true;
+                }
+            } catch(...) {
+            }
+
+            if(!success) {
+                ROS_WARN("Error reading calibration file: %s\n"
+                    "Cannot publish detailed camera information!", calibFile.c_str());
+            }
+        }
+    }
 
     /**
      * \brief Publishes a rectified left camera image
@@ -353,8 +375,20 @@ private:
             pointCloudMsg->is_dense = false;
         }
 
-        memcpy(&pointCloudMsg->data[0], pointMap,
-            imagePair.getWidth()*imagePair.getHeight()*4*sizeof(float));
+        if(maxDepth < 0) {
+            // Just copy everything
+            memcpy(&pointCloudMsg->data[0], pointMap,
+                imagePair.getWidth()*imagePair.getHeight()*4*sizeof(float));
+        } else {
+            // Only copy points up to maximum depth
+            if(rosCoordinateSystem) {
+                copyPointCloudClamped<0>(pointMap, reinterpret_cast<float*>(&pointCloudMsg->data[0]),
+                    imagePair.getWidth()*imagePair.getHeight());
+            } else {
+                copyPointCloudClamped<2>(pointMap, reinterpret_cast<float*>(&pointCloudMsg->data[0]),
+                    imagePair.getWidth()*imagePair.getHeight());
+            }
+        }
 
         // Copy intensity values
         if(intensityChannel) {
@@ -382,6 +416,26 @@ private:
         }
 
         cloudPublisher->publish(pointCloudMsg);
+    }
+
+    /**
+     * \brief Copies all points in a point cloud that have a depth smaller
+     * than maxDepth. Other points are set to NaN.
+     */
+    template <int coord> void copyPointCloudClamped(float* src, float* dst, int size) {
+        // Only copy points that are below the minimum depth
+        float* endPtr = src + 4*size;
+        for(float *srcPtr = src, *dstPtr = dst; srcPtr < endPtr; srcPtr+=4, dstPtr+=4) {
+            if(srcPtr[coord] > maxDepth) {
+                dstPtr[0] = std::numeric_limits<float>::quiet_NaN();
+                dstPtr[1] = std::numeric_limits<float>::quiet_NaN();
+                dstPtr[2] = std::numeric_limits<float>::quiet_NaN();
+            } else {
+                dstPtr[0] = srcPtr[0];
+                dstPtr[1] = srcPtr[1];
+                dstPtr[2] = srcPtr[2];
+            }
+        }
     }
 
     /**
