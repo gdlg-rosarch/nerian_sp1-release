@@ -2,6 +2,11 @@
 Changelog for package nerian_sp1
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.6.3 (2017-10-18)
+------------------
+* Fixed file clash with new nerian_stereo package
+* Contributors: Konstantin Schauwecker
+
 1.6.2 (2017-05-30)
 ------------------
 * Allow launch even if calibration file is not found
