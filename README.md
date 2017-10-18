@@ -1,3 +1,26 @@
+## nerian_sp1 (lunar) - 1.6.3-0
+
+The packages in the `nerian_sp1` repository were released into the `lunar` distro by running `/usr/bin/bloom-release --rosdistro lunar --track lunar nerian_sp1 --edit` on `Wed, 18 Oct 2017 10:09:38 -0000`
+
+The `nerian_sp1` package was released.
+
+Version of package(s) in repository `nerian_sp1`:
+
+- upstream repository: https://github.com/nerian-vision/nerian_sp1.git
+- release repository: https://github.com/nerian-vision/nerian_sp1-release.git
+- rosdistro version: `1.6.2-1`
+- old version: `1.6.2-1`
+- new version: `1.6.3-0`
+
+Versions of tools used:
+
+- bloom version: `0.5.26`
+- catkin_pkg version: `0.2.10`
+- rosdep version: `0.11.5`
+- rosdistro version: `0.5.0`
+- vcstools version: `0.1.39`
+
+
 ## nerian_sp1 (indigo) - 1.6.2-0
 
 The packages in the `nerian_sp1` repository were released into the `indigo` distro by running `/usr/bin/bloom-release --rosdistro indigo --track indigo nerian_sp1 -y` on `Tue, 30 May 2017 10:06:23 -0000`
